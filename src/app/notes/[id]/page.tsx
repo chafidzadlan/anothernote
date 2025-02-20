@@ -1,11 +1,16 @@
 import { supabase } from "@/lib/supabaseClient";
 import Link from "next/link";
 
-export default async function NoteDetail({
-    params,
-}: {
-    params: { id: string }
-}) {
+export interface NoteProps {
+    params: {
+        id: number;
+        title: string;
+        content: string;
+        created_at: string;
+    };
+}
+
+export default async function NoteDetail({ params }: NoteProps) {
     const { data: note } = await supabase.from("notes").select("*").eq("id", params.id).single();
 
     if (!note) return <div>Note not found</div>
