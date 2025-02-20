@@ -1,11 +1,21 @@
 import { supabase } from "@/lib/supabaseClient";
-import { Props } from "@/types/note";
 import Link from "next/link";
 
-export default async function NoteDetail({ params }: Props) {
-    const { data: note } = await supabase.from("notes").select("*").eq("id", params.id).single();
+interface PageProps {
+    params: {
+        id: string;
+    }
+}
 
-    if (!note) return <div>Note not found</div>
+export default async function NoteDetail({ params }: PageProps) {
+    const { data: note, error } = await supabase.from("notes").select("*").eq("id", params.id).single();
+
+    if (error) {
+        console.error("Error fetching note:", error);
+        return <div>Error loading note</div>;
+    }
+
+    if (!note) return <div>Note not found</div>;
 
     return (
         <div className="container mx-auto p-4">
