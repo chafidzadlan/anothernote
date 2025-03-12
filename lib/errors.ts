@@ -4,7 +4,7 @@ export class AppError extends Error {
   constructor(
     message: string,
     public readonly code?: string,
-    public readonly details?: any
+    public readonly details?: unknown
   ) {
     super(message);
     this.name = "AppError";
@@ -13,7 +13,7 @@ export class AppError extends Error {
 };
 
 export class DatabaseError extends AppError {
-  constructor(message: string, details?: any) {
+  constructor(message: string, details?: unknown) {
     super(message, "DATABASE_ERROR", details);
     this.name = "DatabaseError";
     Object.setPrototypeOf(this, DatabaseError.prototype);
@@ -21,7 +21,7 @@ export class DatabaseError extends AppError {
 };
 
 export class AuthError extends AppError {
-  constructor(message: string, details?: any) {
+  constructor(message: string, details?: unknown) {
     super(message, "AUTH_ERROR", details);
     this.name = "AuthError";
     Object.setPrototypeOf(this, AuthError.prototype);
@@ -29,7 +29,7 @@ export class AuthError extends AppError {
 };
 
 export class ValidationError extends AppError {
-  constructor(message: string, details?: any) {
+  constructor(message: string, details?: unknown) {
     super(message, "VALIDATION_ERROR", details);
     this.name = "ValidationError";
     Object.setPrototypeOf(this, ValidationError.prototype);

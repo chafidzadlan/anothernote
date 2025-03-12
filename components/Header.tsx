@@ -13,7 +13,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { User as UserIcon, LogOut, Settings } from "lucide-react";
-
+import { showToast } from "@/lib/toast";
+import { useState } from "react";
 
 interface HeaderProps {
   user?: User | null;
@@ -22,6 +23,7 @@ interface HeaderProps {
 
 export default function Header({ user, onLogout }: HeaderProps) {
   const router = useRouter();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const getInitials = (name?: string): string => {
     if (!name) return "U";
@@ -31,6 +33,38 @@ export default function Header({ user, onLogout }: HeaderProps) {
       .join("")
       .toUpperCase()
       .substring(0, 2);
+  };
+
+  const handleLogout = async () => {
+    try {
+      setIsLoggingOut(true);
+      await onLogout();
+
+      router.push("/");
+
+      showToast({
+        title: "Logged out",
+        description: "You have been successfully logged out",
+        type: "success"
+      });
+    } catch (error) {
+      console.error("Logout error:", error);
+      showToast({
+        title: "Error",
+        description: "Failed to log out. Please try again.",
+        type: "error"
+      });
+    } finally {
+      setIsLoggingOut(false);
+    };
+  };
+
+  if (isLoggingOut) {
+    <div className="flex items-center justify-center min-h-screen">
+      <div className="mr-2 h-8 w-8">
+        Logging out...
+      </div>
+    </div>
   };
 
   return (
@@ -72,9 +106,13 @@ export default function Header({ user, onLogout }: HeaderProps) {
                     </DropdownMenuItem>
                   </DropdownMenuGroup>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={onLogout}>
+                  <DropdownMenuItem
+                    onClick={handleLogout}
+                    disabled={isLoggingOut}
+                    className="cursor-pointer"
+                  >
                     <LogOut className="mr-2 h-4 w-4" />
-                    <span>Log out</span>
+                    <span>Logout</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

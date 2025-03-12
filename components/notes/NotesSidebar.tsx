@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import EmptyState from "@/components/EmptyState";
+import EmptyState from "@/components/notes/EmptyState";
 import { Note } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { formatDate } from "@/lib/notes/storage";
