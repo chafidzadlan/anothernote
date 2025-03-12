@@ -13,6 +13,7 @@ import NoteView from "@/components/NotesView";
 import { Button } from "@/components/ui/button";
 import { showToast } from "@/lib/toast";
 import { Loader2 } from "lucide-react";
+import Link from "next/link";
 
 export default function Home() {
   const [user, setUser] = useState<User | null>(null);
@@ -84,8 +85,7 @@ export default function Home() {
   const createNewNote = async () => {
     if (!user) return;
 
-    const newNote: Note = {
-      id: Date.now().toString(),
+    const newNote: Omit<Note, "id"> & { id?: string } = {
       title: "New Note",
       content: "",
       created_at: new Date().toISOString(),
@@ -93,7 +93,7 @@ export default function Home() {
     };
 
     try {
-      const savedNote = await saveNote(newNote);
+      const savedNote = await saveNote(newNote as Note);
       if (savedNote) {
         setNotes([savedNote, ...notes]);
         setActiveNote(savedNote);
@@ -105,7 +105,8 @@ export default function Home() {
           type: "success"
         });
       };
-    } catch {
+    } catch (error) {
+      console.error("Error creating note:", error);
       showToast({
         title: "Error",
         description: "Failed to create new note.",
@@ -150,19 +151,18 @@ export default function Home() {
 
   const handleDeleteNote = async (id: string) => {
     try {
-      const success = await deleteNote(id);
-      if (success) {
-        setNotes(notes.filter(n => n.id !== id));
-        if (activeNote?.id === id) {
-          setActiveNote(null);
-        };
+      await deleteNote(id);
 
-        showToast({
-          title: "Note deleted",
-          description: "Your note has been deleted successfully.",
-          type: "success"
-        });
+      setNotes(notes.filter(n => n.id !== id));
+      if (activeNote?.id === id) {
+        setActiveNote(null);
       };
+
+      showToast({
+        title: "Note deleted",
+        description: "Your note has been deleted successfully.",
+        type: "success"
+      });
     } catch {
       showToast({
         title: "Error",
@@ -185,17 +185,26 @@ export default function Home() {
 
   if (!user) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4">Please Login</h1>
-          <div className="space-y-2">
-            <Button onClick={() => router.push("/login")}>Login</Button>
-            <Button variant="outline" onClick={() => router.push("/register")}>Register</Button>
+      <div className="flex flex-col items-center justify-center min-h-screen px-4 py-12">
+        <div className="max-w-3xl text-center">
+          <h1 className="text-5xl md:text-6xl font-bold tracking-tight mb-6">
+            Another Note
+          </h1>
+          <p className="text-xl text-gray-600 mb-8">
+            A simple and elegant notes management application to organize your ideas, tasks, memories.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button asChild size="lg" className="text-lg px-8">
+              <Link href="/register">Get Started</Link>
+            </Button>
+            <Button asChild variant="outline" size="lg" className="text-lg px-8">
+              <Link href="/login">Login</Link>
+            </Button>
           </div>
         </div>
       </div>
-    )
-  }
+    );
+  };
 
   const renderNoteContent = () => {
     if (!activeNote && notes.length === 0) {
