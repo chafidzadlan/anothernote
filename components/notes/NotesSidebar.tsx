@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import EmptyState from "@/components/notes/EmptyState";
 import { Note } from "@/lib/types";
 import { Button } from "@/components/ui/button";
-import { formatDate } from "@/lib/notes/storage";
+import { formatDate } from "@/lib/storage";
 import { Plus, Search, Trash2 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";

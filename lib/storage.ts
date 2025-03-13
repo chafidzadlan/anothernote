@@ -50,22 +50,35 @@ export function formatDate(dateString: string): string {
 };
 
 export async function updateUserProfile(userId: string, updates: { name?: string, avatar_url?: string }): Promise<void> {
+  const filteredUpdates = Object.fromEntries(
+    Object.entries(updates).filter(([, value]) => value !== undefined && value !== null)
+  );
+
+  if (Object.keys(filteredUpdates).length === 0) {
+    return;
+  };
+
   const { error } = await supabase
     .from("profiles")
-    .upsert({
+    .update({
       id: userId,
-      ...updates,
+      ...filteredUpdates,
       updated_at: new Date().toISOString(),
-    });
+    })
+    .eq("id", userId);
   if (error) {
     throw new DatabaseError("Failed to update user profile", error);
   };
 };
 
 export async function uploadAvatar(userId: string, file: File): Promise<string> {
+  if (!file) {
+    throw new DatabaseError("No file provided for avatar upload");
+  };
+
   const fileExt = file.name.split(".").pop();
   const fileName = `${userId}-${Date.now()}.${fileExt}`;
-  const filePath = `avatars/${fileName}`;
+  const filePath = `avatars/${userId}/${fileName}`;
 
   const { error: uploadError } = await supabase.storage
     .from("user-content")

@@ -79,7 +79,7 @@ export default function Header({ user, onLogout }: HeaderProps) {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                    <Avatar className="h-8 w-8">
+                    <Avatar className="h-12 w-12">
                       <AvatarImage src={user.avatar_url || ""} alt={user.name || user.email} />
                       <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
                     </Avatar>

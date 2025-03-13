@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Note, User } from "@/lib/types";
 import { supabase } from "@/lib/db/supabase";
-import { loadNotes, saveNote, deleteNote } from "@/lib/notes/storage";
+import { loadNotes, saveNote, deleteNote } from "@/lib/storage";
 import Header from "@/components/Header";
 import NotesSidebar from "@/components/notes/NotesSidebar";
 import EmptyState from "@/components/notes/EmptyState";
