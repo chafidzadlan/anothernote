@@ -3,7 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 
 export async function POST(request: Request) {
   try {
-    const { userId, requesterId } = await request.json();
+    const { userId } = await request.json();
 
     // Get authorization header
     const authHeader = request.headers.get('authorization');
