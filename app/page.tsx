@@ -38,7 +38,8 @@ export default function Home() {
           email: session.user.email || "",
           role: data?.role || "user",
           name: data?.name || session.user.user_metadata?.name,
-          avatar_url: data?.avatar_url
+          avatar_url: data?.avatar_url,
+          created_at: data?.created_at,
         });
 
         const userNotes = await loadNotes(session.user.id);
@@ -65,6 +66,7 @@ export default function Home() {
             role: data?.role || "user",
             name: data?.name || session.user.user_metadata?.name,
             avatar_url: data?.avatar_url,
+            created_at: data?.created_at,
           });
 
           const userNotes = await loadNotes(session.user.id);

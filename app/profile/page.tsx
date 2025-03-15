@@ -60,6 +60,8 @@ export default function ProfilePage() {
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [deletePassword, setDeletePassword] = useState("");
+  const [deletePasswordError, setDeletePasswordError] = useState("");
   const router = useRouter();
 
   useEffect(() => {
@@ -83,6 +85,7 @@ export default function ProfilePage() {
           role: data?.role || "user",
           name: data?.name || session.user.user_metadata?.name || "",
           avatar_url: data?.avatar_url || "",
+          created_at: data?.created_at,
         };
         setUser(userData);
         setProfileData({
@@ -267,32 +270,39 @@ export default function ProfilePage() {
     } catch (error) {
       handleError(error, "Failed to update password");
     } finally {
-      setIsSaving(true);
+      setIsSaving(false);
     };
   };
 
   const handleAccountDeletion = async () => {
-    if (!user) return;
+    if (!user || !deletePassword) return;
 
     setIsDeleting(true);
 
     try {
-      const { error: profileError } = await supabase
-        .from("profiles")
-        .delete()
-        .eq("id", user.id);
-      if (profileError) throw profileError;
+      const { error } = await supabase.auth.signInWithPassword({
+        email: user?.email || "",
+        password: deletePassword,
+      });
+      if (error) {
+        setDeletePasswordError("Incorrect password");
+        setIsDeleting(false);
+        return;
+      };
 
-      const { error: notesError } = await supabase
-        .from("notes")
-        .delete()
-        .eq("user_id", user.id);
-      if (notesError) throw notesError;
-
-      const { error } = await supabase.auth.admin.deleteUser(user.id);
-      if (error) throw error;
-
-      await supabase.auth.signOut();
+      const response = await fetch("/api/user/delete", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId: user.id,
+        }),
+      });
+      if (!response.ok) {
+        const result = await response.json();
+        throw new Error(result.error || "Failed to delete account");
+      }
 
       showToast({
         title: "Account deleted",
@@ -300,12 +310,16 @@ export default function ProfilePage() {
         type: "info",
       });
 
+      await supabase.auth.signOut();
+
       router.push("/");
     } catch (error) {
       handleError(error, "Failed to delete account");
-    } finally {
       setIsDeleting(false);
       setIsDeleteDialogOpen(false);
+    } finally {
+      setDeletePassword("");
+      setDeletePasswordError("");
     };
   };
 
@@ -335,7 +349,7 @@ export default function ProfilePage() {
   return (
     <div className="flex flex-col min-h-screen">
       <main className="container mx-auto p-4 flex-1">
-        <div className="max-w-3xl mx-auto">
+        <div className="max-w-4xl mx-auto">
           <div className="flex items-center mb-4">
             <Link
               href="/"
@@ -533,11 +547,45 @@ export default function ProfilePage() {
                               account and remove all of your data from our servers.
                             </AlertDialogDescription>
                           </AlertDialogHeader>
+                          <div className="py-4">
+                            <div className="space-y-2">
+                              <Label htmlFor="delete-password">Enter your password to confirm</Label>
+                              <Input
+                                id="delete-password"
+                                type="password"
+                                placeholder="Password"
+                                value={deletePassword}
+                                onChange={(e) => {
+                                  setDeletePassword(e.target.value);
+                                  setDeletePasswordError("");
+                                }}
+                              />
+                              {deletePasswordError && (
+                                <p className="text-sm text-destructive">{deletePasswordError}</p>
+                              )}
+                            </div>
+                          </div>
                           <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogCancel
+                              onClick={() => {
+                                setDeletePassword("");
+                                setDeletePasswordError("");
+                              }}
+                            >
+                              Cancel
+                            </AlertDialogCancel>
                             <AlertDialogAction
-                              onClick={handleAccountDeletion}
-                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                              onClick={async (e) => {
+                                e.preventDefault();
+
+                                if (!deletePassword) {
+                                  setDeletePasswordError("Password is required to delete your account");
+                                  return;
+                                };
+
+                                await handleAccountDeletion();
+                              }}
+                              className="bg-destructive hover:bg-destructive/80"
                               disabled={isDeleting}
                             >
                               {isDeleting ? (

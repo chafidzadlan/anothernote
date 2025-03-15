@@ -11,7 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { User as UserIcon, LogOut } from "lucide-react";
+import { User as UserIcon, LogOut, LayoutDashboard } from "lucide-react";
 import { showToast } from "@/lib/toast";
 import { useState } from "react";
 
@@ -98,6 +98,12 @@ export default function Header({ user, onLogout }: HeaderProps) {
                       <UserIcon className="mr-2 h-4 w-4" />
                       <span>Profile</span>
                     </DropdownMenuItem>
+                    {user.role === "admin" && (
+                      <DropdownMenuItem onClick={() => router.push("/admin")}>
+                        <LayoutDashboard className="mr-2 h-4 w-4" />
+                        <span>Dashboard</span>
+                      </DropdownMenuItem>
+                    )}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
                     onClick={handleLogout}
