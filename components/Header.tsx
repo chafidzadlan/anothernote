@@ -14,6 +14,7 @@ import {
 import { User as UserIcon, LogOut, LayoutDashboard } from "lucide-react";
 import { showToast } from "@/lib/toast";
 import { useState } from "react";
+import ThemeToggle from "@/components/ThemeToggle";
 
 interface HeaderProps {
   user?: User | null;
@@ -73,12 +74,13 @@ export default function Header({ user, onLogout }: HeaderProps) {
           Another Note
         </Link>
         <div className="flex items-center gap-4">
+          <ThemeToggle />
           {user && (
             <>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                    <Avatar className="h-12 w-12">
+                    <Avatar className="h-10 w-10">
                       <AvatarImage src={user.avatar_url || ""} alt={user.name || user.email} />
                       <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
                     </Avatar>
@@ -86,8 +88,8 @@ export default function Header({ user, onLogout }: HeaderProps) {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-56" align="end" forceMount>
                   <DropdownMenuLabel className="font-normal">
-                    <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none">{user.name || "User"}</p>
+                    <div className="flex flex-col space-y-1 py-2">
+                      <p className="text-sm font-medium leading-none capitalize">{user.name || "User"}</p>
                       <p className="text-zs leading-none text-muted-foreground">
                         {user.email}
                       </p>
